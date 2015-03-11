@@ -36,7 +36,7 @@ public class App {
         }, new FreeMarkerEngine());*/
 
         get("/hello", (request, response) -> {
-            return "Hello World!";
+            return "<html><head><h1>Hello World!</h1></head><body></body></html>";
         });
 
         /*get(new FreeMarkerRoute("/") {
