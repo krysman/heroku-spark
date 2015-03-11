@@ -10,6 +10,8 @@ import spark.template.freemarker.FreeMarkerEngine;
 import static spark.Spark.*;
 import spark.*;
 
+// heroku auth:token
+
 public class App {
 
     public static void main(String[] args) {

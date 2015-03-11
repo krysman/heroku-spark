@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -jar target/heroku_spark-1.0-SNAPSHOT-jar-with-dependencies.jar
+web: java $JAVA_OPTS -jar target/heroku-spark-test-1.0-SNAPSHOT-jar-with-dependencies.jar
