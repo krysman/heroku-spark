@@ -31,7 +31,7 @@ public class App {
             @Override
             public Object handle(Request request, Response response) throws Exception {
 
-                return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + testDb() + "</h2>" + "</body></html>";
+                return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + testDb() + System.getenv("DATABASE_URL") + "</h2>" + "</body></html>";
             }
         });
     }
