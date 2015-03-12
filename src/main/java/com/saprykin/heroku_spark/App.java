@@ -85,7 +85,7 @@ public class App {
             result += e.toString();
         }
 
-        final String dbTestString = "dbTestString\n" + result;
+        final String dbTestString = result;
 
         get("/hello", (request, response) -> "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + dbTestString + "</h2>" + "</body></html>");
     }
