@@ -20,25 +20,25 @@ public class DaoTest {
     }
 
     public String testDb() {
-        String result = "testing...\n";
+        String result = "testing...<br>";
 
         Connection connection = null;
         try {
             connection = getConnection();
-            result += "\nsuccessfully get connection...";
+            result += "<br>successfully get connection...";
         } catch(URISyntaxException | SQLException e) {
-            result += "\ncouldn't get connection!";
+            result += "<br>couldn't get connection!";
         }
 
         try {
             Statement stmt;
             if(connection != null) {
                 stmt = connection.createStatement();
-                result += "\nsuccessfully created statement...";
+                result += "<br>successfully created statement...";
             }
             else {
                 stmt = null;
-                result += "\nconnection is null, and statement couldn't be created";
+                result += "<br>connection is null, and statement couldn't be created";
             }
             StringBuilder res = new StringBuilder();
 
@@ -53,19 +53,20 @@ public class DaoTest {
                 stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
                 ResultSet rs = stmt.executeQuery("SELECT * FROM users");
 
-                res.append("Reading from DB:\n");
+                res.append("Reading from DB:<br>");
                 while(rs.next()) {
                     res.append("id: ");
                     res.append(rs.getInt("id"));
-                    res.append("e-mail: ");
+                    res.append(" e-mail: ");
                     res.append(rs.getString("email"));
+                    res.append("<br>");
                 }
             }
 
             result = res.toString();
 
         } catch(SQLException e) {
-            result += "\n";
+            result += "<br>";
             result += e.toString();
         }
 
