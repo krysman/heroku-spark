@@ -1,17 +1,11 @@
 package com.saprykin.heroku_spark;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-//import spark.template.freemarker.FreeMarkerRoute;
-import spark.ModelAndView;
-import spark.template.freemarker.FreeMarkerEngine;
 
 import static spark.Spark.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.*;
-import spark.*;
+
 
 // heroku auth:token
 
@@ -30,37 +24,42 @@ public class App {
         setPort(port);
 
 
-        Connection connection = getConnection();
+        Connection connection = null;
 
-
+        try {
+            connection = getConnection();
+        } catch(URISyntaxException | SQLException e) {
+            e.printStackTrace();
+        }
 
 
         get("/hello", (request, response) -> {
 
-            Statement stmt = connection.createStatement();
+            Statement stmt = connection != null ? connection.createStatement() : null;
             StringBuilder result = new StringBuilder();
 
             try {
-                stmt.executeUpdate("DROP TABLE IF EXISTS users");
+                if(stmt != null) {
+                    stmt.executeUpdate("DROP TABLE IF EXISTS users");
+                    stmt.executeUpdate("CREATE TABLE users " +
+                            "(id INTEGER NOT NULL AUTO_INCREMENT," +
+                            " email VARCHAR(100) NOT NULL " +
+                            "PRIMARY KEY (id) )");
 
-                stmt.executeUpdate("CREATE TABLE users " +
-                        "(id INTEGER NOT NULL AUTO_INCREMENT," +
-                        " email VARCHAR(100) NOT NULL " +
-                        "PRIMARY KEY (id) )");
+                    stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM users");
 
-                stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
-
-
-                ResultSet rs = stmt.executeQuery("SELECT * FROM users");
-                result.append("Read from DB:\n");
-                while (rs.next()) {
-                    result.append("id: ");
-                    result.append(rs.getInt("id"));
-                    result.append("e-mail: ");
-                    result.append(rs.getString("email"));
+                    result.append("Read from DB:\n");
+                    while (rs.next()) {
+                        result.append("id: ");
+                        result.append(rs.getInt("id"));
+                        result.append("e-mail: ");
+                        result.append(rs.getString("email"));
+                    }
                 }
-            } catch(SQLException e) {
 
+            } catch(SQLException e) {
+                e.printStackTrace();
             }
 
             return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + result.toString() + "</h2>" + "</body></html>";
