@@ -24,25 +24,11 @@ public class DaoTest {
 
         Connection connection = null;
         try {
-            //connection = getConnection();
-
-            URI dbUri = new URI(System.getenv("DATABASE_URL"));
-
-            String username = dbUri.getUserInfo().split(":")[0];
-            String password = dbUri.getUserInfo().split(":")[1];
-            String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
-            result += "\ndbUrl:" + dbUrl;
-            result += "\nusername:" + username;
-            result += "\npassword:" + password;
-
-            connection =  DriverManager.getConnection(dbUrl, username, password);
-
+            connection = getConnection();
             result += "\nsuccessfully get connection...";
         } catch(URISyntaxException | SQLException e) {
             result += "\ncouldn't get connection!";
         }
-
-
 
         try {
             Statement stmt;
@@ -58,10 +44,11 @@ public class DaoTest {
 
             if(stmt != null) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS users");
-                stmt.executeUpdate("CREATE TABLE users " +
-                        "(id INTEGER NOT NULL AUTO_INCREMENT," +
-                        " email VARCHAR(100) NOT NULL " +
-                        "PRIMARY KEY (id) )");
+                stmt.executeUpdate(
+                        "CREATE TABLE users " +
+                        "(id INTEGER NOT NULL PRIMARY KEY ," +
+                        " email VARCHAR(100) NOT NULL )"
+                );
 
                 stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
                 ResultSet rs = stmt.executeQuery("SELECT * FROM users");
