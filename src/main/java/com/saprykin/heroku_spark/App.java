@@ -1,6 +1,10 @@
 package com.saprykin.heroku_spark;
 
 
+import spark.Request;
+import spark.Response;
+import spark.Route;
+
 import static spark.Spark.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,46 +28,46 @@ public class App {
         setPort(port);
 
 
-        Connection connection = null;
-
-        try {
-            connection = getConnection();
-        } catch(URISyntaxException | SQLException e) {
-            e.printStackTrace();
-        }
 
 
-        final Connection finalConnection = connection;
-        get("/hello", (request, response) -> {
 
-            Statement stmt = finalConnection != null ? finalConnection.createStatement() : null;
-            StringBuilder result = new StringBuilder();
 
-            try {
-                if(stmt != null) {
-                    stmt.executeUpdate("DROP TABLE IF EXISTS users");
-                    stmt.executeUpdate("CREATE TABLE users " +
-                            "(id INTEGER NOT NULL AUTO_INCREMENT," +
-                            " email VARCHAR(100) NOT NULL " +
-                            "PRIMARY KEY (id) )");
 
-                    stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+        get("/hello", new Route() {
+            @Override
+            public Object handle(Request request, Response response) throws Exception {
 
-                    result.append("Read from DB:\n");
-                    while (rs.next()) {
-                        result.append("id: ");
-                        result.append(rs.getInt("id"));
-                        result.append("e-mail: ");
-                        result.append(rs.getString("email"));
+                final Connection finalConnection = getConnection();
+
+                Statement stmt = finalConnection != null ? finalConnection.createStatement() : null;
+                StringBuilder result = new StringBuilder();
+
+                try {
+                    if(stmt != null) {
+                        stmt.executeUpdate("DROP TABLE IF EXISTS users");
+                        stmt.executeUpdate("CREATE TABLE users " +
+                                "(id INTEGER NOT NULL AUTO_INCREMENT," +
+                                " email VARCHAR(100) NOT NULL " +
+                                "PRIMARY KEY (id) )");
+
+                        stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
+                        ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+
+                        result.append("Read from DB:\n");
+                        while(rs.next()) {
+                            result.append("id: ");
+                            result.append(rs.getInt("id"));
+                            result.append("e-mail: ");
+                            result.append(rs.getString("email"));
+                        }
                     }
+
+                } catch(SQLException e) {
+                    e.printStackTrace();
                 }
 
-            } catch(SQLException e) {
-                e.printStackTrace();
+                return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + result.toString() + "</h2>" + "</body></html>";
             }
-
-            return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + result.toString() + "</h2>" + "</body></html>";
         });
     }
 
