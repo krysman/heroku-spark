@@ -27,46 +27,11 @@ public class App {
         }
         setPort(port);
 
-
-
-
-
-
-
         get("/hello", new Route() {
             @Override
             public Object handle(Request request, Response response) throws Exception {
 
-                final Connection finalConnection = getConnection();
-
-                Statement stmt = finalConnection != null ? finalConnection.createStatement() : null;
-                StringBuilder result = new StringBuilder();
-
-                try {
-                    if(stmt != null) {
-                        stmt.executeUpdate("DROP TABLE IF EXISTS users");
-                        stmt.executeUpdate("CREATE TABLE users " +
-                                "(id INTEGER NOT NULL AUTO_INCREMENT," +
-                                " email VARCHAR(100) NOT NULL " +
-                                "PRIMARY KEY (id) )");
-
-                        stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
-                        ResultSet rs = stmt.executeQuery("SELECT * FROM users");
-
-                        result.append("Read from DB:\n");
-                        while(rs.next()) {
-                            result.append("id: ");
-                            result.append(rs.getInt("id"));
-                            result.append("e-mail: ");
-                            result.append(rs.getString("email"));
-                        }
-                    }
-
-                } catch(SQLException e) {
-                    e.printStackTrace();
-                }
-
-                return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + result.toString() + "</h2>" + "</body></html>";
+                return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + testDb() + "</h2>" + "</body></html>";
             }
         });
     }
@@ -80,6 +45,58 @@ public class App {
         String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
 
         return DriverManager.getConnection(dbUrl, username, password);
+    }
+
+    private static String testDb() {
+        String result = "";
+
+        Connection connection = null;
+        try {
+            connection = getConnection();
+        } catch(URISyntaxException | SQLException e) {
+            result += "couldn't get connection!";
+        }
+
+
+
+        try {
+            Statement stmt;
+            if(connection != null) {
+                stmt = connection.createStatement();
+            }
+            else {
+                stmt = null;
+                result += "\nconnection is null, and statement couldn't be created";
+            }
+            StringBuilder res = new StringBuilder();
+
+            if(stmt != null) {
+                stmt.executeUpdate("DROP TABLE IF EXISTS users");
+                stmt.executeUpdate("CREATE TABLE users " +
+                        "(id INTEGER NOT NULL AUTO_INCREMENT," +
+                        " email VARCHAR(100) NOT NULL " +
+                        "PRIMARY KEY (id) )");
+
+                stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
+                ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+
+                res.append("Read from DB:\n");
+                while(rs.next()) {
+                    res.append("id: ");
+                    res.append(rs.getInt("id"));
+                    res.append("e-mail: ");
+                    res.append(rs.getString("email"));
+                }
+            }
+
+            result = res.toString();
+
+        } catch(SQLException e) {
+            result += "\n";
+            result += e.toString();
+        }
+
+        return result;
     }
 
 }
