@@ -33,9 +33,10 @@ public class App {
         }
 
 
+        final Connection finalConnection = connection;
         get("/hello", (request, response) -> {
 
-            Statement stmt = connection != null ? connection.createStatement() : null;
+            Statement stmt = finalConnection != null ? finalConnection.createStatement() : null;
             StringBuilder result = new StringBuilder();
 
             try {
