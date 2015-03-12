@@ -28,14 +28,10 @@ public class App {
         }
         setPort(port);
 
-        get("/hello", new Route() {
-            @Override
-            public Object handle(Request request, Response response) throws Exception {
-                DaoTest daoTest = new DaoTest();
+        DaoTest daoTest = new DaoTest();
+        final String dbTestString = "dbTestString\n" + daoTest.testDb();
 
-                return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + daoTest.testDb() + "</h2>" + "</body></html>";
-            }
-        });
+        get("/hello", (request, response) -> "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + dbTestString + "</h2>" + "</body></html>");
     }
 
 
