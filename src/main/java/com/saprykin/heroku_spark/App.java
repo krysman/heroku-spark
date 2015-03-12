@@ -8,6 +8,9 @@ import spark.ModelAndView;
 import spark.template.freemarker.FreeMarkerEngine;
 
 import static spark.Spark.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.*;
 import spark.*;
 
 // heroku auth:token
@@ -26,45 +29,53 @@ public class App {
         }
         setPort(port);
 
-        //staticFileLocation("/spark"); // Static files
 
-        /*get("/", (request, response) -> {
+        Connection connection = getConnection();
 
-            // The hello.ftl file is located in directory:
-            // src/test/resources/spark/template/freemarker
-            return new ModelAndView(null, "login.ftl.html");
-        }, new FreeMarkerEngine());*/
+
+
 
         get("/hello", (request, response) -> {
-            return "<html><head><h1>Hello World!</h1></head><body></body></html>";
+
+            Statement stmt = connection.createStatement();
+            StringBuilder result = new StringBuilder();
+
+            try {
+                stmt.executeUpdate("DROP TABLE IF EXISTS users");
+
+                stmt.executeUpdate("CREATE TABLE users " +
+                        "(id INTEGER NOT NULL AUTO_INCREMENT," +
+                        " email VARCHAR(100) NOT NULL " +
+                        "PRIMARY KEY (id) )");
+
+                stmt.executeUpdate("INSERT INTO users (email) VALUES ('foo@bar.com'), ('bar@foo.com'), ('foobar@bf.com') ");
+
+
+                ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+                result.append("Read from DB:\n");
+                while (rs.next()) {
+                    result.append("id: ");
+                    result.append(rs.getInt("id"));
+                    result.append("e-mail: ");
+                    result.append(rs.getString("email"));
+                }
+            } catch(SQLException e) {
+
+            }
+
+            return "<html><head><h1>Hello World!</h1></head><body>" + "<h2>" + result.toString() + "</h2>" + "</body></html>";
         });
-
-        /*get(new FreeMarkerRoute("/") {
-            @Override
-            public ModelAndView handle(Request request, Response response) {
-                return modelAndView(null, "login.ftl.html");
-            }
-        });*/
+    }
 
 
-        /*post("/", (request, response) -> {
-            String username = request.queryParams("username");
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("message", "Welcome " + username + ", Time now is: " + new Date());
+    private static Connection getConnection() throws URISyntaxException, SQLException {
+        URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
-            return new ModelAndView(attributes, "home.ftl.html");
-        }, new FreeMarkerEngine());*/
+        String username = dbUri.getUserInfo().split(":")[0];
+        String password = dbUri.getUserInfo().split(":")[1];
+        String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
 
-        /*post(new FreeMarkerRoute("/") {
-            @Override
-            public ModelAndView handle(Request request, Response response) {
-                String username = request.queryParams("username");
-                Map<String, Object> attributes = new HashMap<>();
-                attributes.put("message", "Welcome " + username + ", Time now is: " + new Date());
-                return modelAndView(attributes, "home.ftl.html");
-            }
-        });*/
-
+        return DriverManager.getConnection(dbUrl, username, password);
     }
 
 }
