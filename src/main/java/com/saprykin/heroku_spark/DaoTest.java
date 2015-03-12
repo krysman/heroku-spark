@@ -24,7 +24,19 @@ public class DaoTest {
 
         Connection connection = null;
         try {
-            connection = getConnection();
+            //connection = getConnection();
+
+            URI dbUri = new URI(System.getenv("DATABASE_URL"));
+
+            String username = dbUri.getUserInfo().split(":")[0];
+            String password = dbUri.getUserInfo().split(":")[1];
+            String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
+            result += "\ndbUrl:" + dbUrl;
+            result += "\nusername:" + username;
+            result += "\npassword:" + password;
+
+            connection =  DriverManager.getConnection(dbUrl, username, password);
+
             result += "\nsuccessfully get connection...";
         } catch(URISyntaxException | SQLException e) {
             result += "\ncouldn't get connection!";

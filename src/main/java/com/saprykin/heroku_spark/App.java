@@ -1,16 +1,6 @@
 package com.saprykin.heroku_spark;
 
-
-import spark.Request;
-import spark.Response;
-import spark.Route;
-
 import static spark.Spark.*;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.*;
-
 
 // heroku auth:token
 
