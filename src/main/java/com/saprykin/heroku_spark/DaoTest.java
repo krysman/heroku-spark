@@ -46,7 +46,7 @@ public class DaoTest {
                 stmt.executeUpdate("DROP TABLE IF EXISTS users");
                 stmt.executeUpdate(
                         "CREATE TABLE users " +
-                        "(id INTEGER NOT NULL PRIMARY KEY ," +
+                        "(id SERIAL NOT NULL PRIMARY KEY ," +
                         " email VARCHAR(100) NOT NULL )"
                 );
 
